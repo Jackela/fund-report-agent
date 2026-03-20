@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Fund Report Skill Configuration",
+  "description": "交互式配置 schema — 支持 AI Agent 在安装时自动询问用户配置",
+  "type": "object",
+  "properties": {
+    "provider": {
+      "type": "string",
+      "enum": ["aliyun", "perplexity"],
+      "default": "aliyun",
+      "description": "AI 研究提供商（推荐 aliyun，Perplexity 需自行申请 API Key）"
+    },
+    "api_key": {
+      "type": "string",
+      "format": "password",
+      "description": "阿里云 DashScope API Key（格式 sk-...），从 https://dashscope.console.aliyun.com 获取"
+    },
+    "email_smtp_host": {
+      "type": "string",
+      "default": "smtp.qq.com",
+      "description": "SMTP 服务器地址（QQ邮箱用 smtp.qq.com，Gmail 用 smtp.gmail.com）"
+    },
+    "email_smtp_port": {
+      "type": "integer",
+      "default": 587,
+      "description": "SMTP 端口（TLS 用 587，SSL 用 465）"
+    },
+    "email_username": {
+      "type": "string",
+      "format": "email",
+      "description": "发件人邮箱（同时也作为发件人地址）"
+    },
+    "email_password": {
+      "type": "string",
+      "format": "password",
+      "description": "SMTP 授权码（不是邮箱密码，QQ邮箱在 设置→账户 中申请 POP3/SMTP 服务获取）"
+    },
+    "receiver_email": {
+      "type": "string",
+      "format": "email",
+      "description": "报告收件人邮箱（你爸的邮箱）"
+    },
+    "template": {
+      "type": "string",
+      "enum": ["weekly_close", "weekend_recap", "ad_hoc"],
+      "default": "weekend_recap",
+      "description": "报告模板：weekly_close(周五收盘版)/weekend_recap(周六完整复盘)/ad_hoc(通用调研)"
+    },
+    "profile": {
+      "type": "string",
+      "enum": ["dad", "generic"],
+      "default": "dad",
+      "description": "受众画像：dad(稳健型，过滤配比)/generic(通用不过滤)"
+    }
+  },
+  "required": ["api_key", "email_password", "receiver_email"],
+  "additionalProperties": false
+}

@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Create virtual environment
+        run: python -m venv .venv
+
+      - name: Install dependencies
+        run: .venv/bin/pip install -r requirements.txt
+
+      - name: Syntax check
+        run: |
+          .venv/bin/python -m py_compile \
+            src/config.py \
+            src/registry.py \
+            src/data_agent.py \
+            src/email_agent.py \
+            src/research_agent.py \
+            run_and_send_pipeline.py
+
+      - name: Import check
+        run: |
+          .venv/bin/python -c "
+            import sys; sys.path.insert(0, '.')
+            from src import registry, config
+            print('registry OK')
+            print('config OK')
+          "
