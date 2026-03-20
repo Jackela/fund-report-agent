@@ -5,25 +5,36 @@ __pycache__/
 dist/
 build/
 .venv/
+*.so
 
-# Output
+# Output & Reports
 output/
 reports/
+*.log
 
-# Environment
+# Environment (contains real secrets)
 .env
 .env.local
+.env.production
 
-# OS
+# System & IDE
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Secrets (never commit)
+# Secrets — absolutely never commit
 *.pem
 *.key
 credentials.json
 secrets/
+secrets.json
+token
+access_token
+
+# Local config overrides (user-specific, not for GitHub)
+config/local.yaml
+config/secrets.yaml
+cron_config.yaml
