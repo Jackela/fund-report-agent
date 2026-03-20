@@ -106,7 +106,7 @@ docker build -t fund-report .
 docker run --rm \
   -e DASHSCOPE_API_KEY=sk-xxx \
   -e EMAIL_PASSWORD=xxxx \
-  -e RECEIVER_EMAIL=13852529975@163.com \
+  -e RECEIVER_EMAIL=dad@example.com \
   -e TEMPLATE=weekend_recap \
   -e PROFILE=dad \
   fund-report
