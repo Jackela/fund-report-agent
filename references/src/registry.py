@@ -310,6 +310,18 @@ class DadProfile:
         return report_md
 
 
+class K7407Profile:
+    """
+    k7407 — 软件工程师，技术背景，成长型投资者
+    - 风险承受较高，关注科技赛道（AI/半导体/新能源）
+    - 偏好简洁直接的语言风格，少废话
+    - 不过滤配比数字（能自行判断）
+    """
+    @classmethod
+    def filter(cls, report_md: str) -> str:
+        return report_md  # 不过滤，技术型用户自己判断
+
+
 class GenericProfile:
     """
     通用型 — 不过滤，保留原始内容
@@ -335,6 +347,7 @@ def initialize():
 
     # Profile
     ProfileRegistry.register("dad", DadProfile)
+    ProfileRegistry.register("k7407", K7407Profile)
     ProfileRegistry.register("generic", GenericProfile)
 
 

@@ -217,7 +217,7 @@ def main():
     print("=" * 56 + "\n")
 
     from src.email_agent import send_fund_report
-    success = send_fund_report(report_html=html_body)
+    success = send_fund_report(report_html=html_body, profile=PROFILE)
 
     print(f"\n{'=' * 56}")
     print(f"{'🎉 全部完成！' if success else '❌ 邮件发送失败'}")
