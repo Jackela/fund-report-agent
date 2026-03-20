@@ -1,50 +1,50 @@
-# 📊 Fund Report Agent
+# 📊 基金投资周报生成器
 
-> AI-powered automated fund investment weekly report generator — data collection → deep research → email delivery, ready to run.
+> AI 驱动的自动化基金投资分析报告系统 — 数据采集 → 深度研究 → 邮件发送，开箱即用。
 
 [![GitHub Stars](https://img.shields.io/github/stars/Jackela/fund-report-agent)](https://github.com/Jackela/fund-report-agent/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
-## Features
+## 功能特性
 
-- **🔍 Fully Automated Data Collection** — Collects macro indicators (PMI/CPI/PPI/M2/LPR), A-share indices, Shenwan industry data, northbound funds, margin balance, and Morningstar 5-star fund pools via AkShare
-- **🧠 Deep Research Report Generation** — Uses Alibaba Cloud's Qwen-Deep-Research model to generate 3000+ word structured analysis reports with data context
-- **📧 Automatic Email Delivery** — Cron-scheduled to run every Saturday 8 AM and send reports to configured email addresses
-- **🎯 Multi-Profile Support** — DadProfile (conservative, filters allocation ratios) and K7407Profile (growth-oriented, full content)
-- **⚙️ Configuration as Code** — All config centralized in `~/.hermes/fund-report.yaml`, supporting multiple accounts and report templates
-- **🔒 Security First** — API keys and passwords managed via `pass` or environment variables, never hardcoded
+- **🔍 全自动数据采集** — 通过 AkShare 采集宏观经济指标（PMI/CPI/PPI/M2/LPR）、A股指数、申万行业涨跌、北向资金、两融余额、晨星5星基金池等
+- **🧠 深度研究报告生成** — 调用阿里通义千问 Deep Research（Qwen-Deep-Research），结合数据上下文自动生成3000+字结构化分析报告
+- **📧 邮件自动发送** — 支持 Cron 定时任务，周六早8点自动生成并发送到指定邮箱
+- **🎯 多用户画像支持** — 预设 DadProfile（稳健型，过滤配比数字）和 K7407Profile（成长型，完整内容）
+- **⚙️ 配置即代码** — 所有配置集中在 `~/.hermes/fund-report.yaml`，支持多账户、多报告模板
+- **🔒 安全第一** — API Key 和密码通过 `pass`（或环境变量）管理，不硬编码
 
 ---
 
-## System Architecture
+## 系统架构
 
 ```
-Data Collection (AkShare)
+数据采集 (AkShare)
     ↓
-Prompt Construction (Template + Profile + TimeContext)
+Prompt 构建 (Template + Profile + TimeContext)
     ↓
-AI Deep Research (Alibaba Cloud Qwen-Deep-Research)
+AI 深度研究 (阿里通义千问 Deep Research)
     ↓
-Content Filtering (Profile post-processing)
+内容过滤 (Profile 后处理)
     ↓
 Markdown → HTML
     ↓
-Email Delivery (SMTP)
+邮件发送 (SMTP)
 ```
 
 ---
 
-## Quick Start
+## 快速开始
 
-### Requirements
+### 环境要求
 
 - Python 3.10+
-- [pass](https://www.passwordstore.org/) (optional, for key management)
-- AI API Key (Alibaba Cloud / DeepSeek / OpenAI etc.)
+- [pass](https://www.passwordstore.org/) (可选，密钥管理用)
+- AI API Key（阿里通义千问 / DeepSeek / OpenAI 等）
 
-### 1. Install Dependencies
+### 1. 安装依赖
 
 ```bash
 git clone https://github.com/Jackela/fund-report-agent.git
@@ -54,84 +54,84 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Configure Secrets
+### 2. 配置密钥
 
-**Option A: pass store (recommended)**
+**方式一：pass store（推荐）**
 
 ```bash
 pass init your-gpg-id
-pass insert hermes/aliyun-api-key      # Alibaba Cloud API Key
-pass insert hermes/email-smtp-password  # Email authorization code
-pass insert hermes/email-config         # SMTP config (see below)
+pass insert hermes/aliyun-api-key      # 阿里云 API Key
+pass insert hermes/email-smtp-password  # 邮箱授权码
+pass insert hermes/email-config        # SMTP 配置（见下）
 ```
 
-`pass insert hermes/email-config` content:
+`pass insert hermes/email-config` 内容格式：
 ```
 smtp_host: smtp.qq.com
 smtp_port: 587
 username: your-email@qq.com
-from_name: Fund Report Bot
+from_name: 基金报告机器人
 ```
 
-**Option B: Environment Variables**
+**方式二：环境变量**
 
 ```bash
 cp .env.example .env
-# Edit .env and fill in real values
+# 编辑 .env，填入真实值
 ```
 
-### 3. Run a Report
+### 3. 运行一次报告
 
 ```bash
-# Dad's version (conservative, filtered ratios)
+# 爸的版本（稳健型，过滤配比）
 PROFILE=dad TEMPLATE=weekend_recap python3 run_and_send_pipeline.py
 
-# Your own version (growth-oriented)
+# 自己的版本（成长型）
 PROFILE=k7407 TEMPLATE=weekend_recap python3 run_and_send_pipeline.py
 ```
 
-> First run takes 2-5 minutes (data collection + AI generation)
+> 首次运行需要 2-5 分钟（数据采集 + AI 生成）
 
-### 4. Set Up Cron Job (Automatic Weekly Run)
+### 4. 设置定时任务（每周自动跑）
 
-#### Option A: System crontab
+#### 方式 A：系统 crontab
 
 ```bash
-# Every Saturday 8 AM
+# 每周六早上8点运行
 0 8 * * 6 cd /path/to/fund-report-agent && \
   .venv/bin/python3 run_and_send_pipeline.py \
   PROFILE=dad TEMPLATE=weekend_recap >> /var/log/fund-report.log 2>&1
 ```
 
-#### Option B: Hermes Agent Cron (if you use Hermes)
+#### 方式 B：Hermes Agent Cron（如果你用 Hermes）
 
 ```bash
 hermes cron create \
-  --name "Weekly Fund Report to Dad" \
+  --name "每周六基金报告" \
   --schedule "0 8 * * 6" \
   --prompt "cd /path/to/fund-report-agent && .venv/bin/python3 run_and_send_pipeline.py PROFILE=dad TEMPLATE=weekend_recap"
 ```
 
 ---
 
-## Configuration
+## 配置参考
 
-All configuration is centralized in `~/.hermes/fund-report.yaml`:
+所有配置集中在 `~/.hermes/fund-report.yaml`：
 
 ```yaml
 profiles:
   dad:
-    email: "dad@example.com"
-    background: "Bank employee, conservative investor"
-    risk_tolerance: "medium"
+    email: "your-dad@email.com"
+    background: "银行从业，稳健型投资者"
+    risk_tolerance: "中等"
   k7407:
-    email: "you@example.com"
-    background: "Software engineer, growth investor"
-    risk_tolerance: "high"
+    email: "your@email.com"
+    background: "软件工程师，成长型投资者"
+    risk_tolerance: "较高"
 
 jobs:
   - id: weekly-to-dad
-    schedule: "0 8 * * 6"       # Every Saturday 08:00
+    schedule: "0 8 * * 6"       # 每周六 08:00
     profile: dad
     template: weekend_recap
     enabled: true
@@ -139,30 +139,30 @@ jobs:
 
 ---
 
-## Project Structure
+## 目录结构
 
 ```
 .
-├── run_and_send_pipeline.py   # Main entry script
+├── run_and_send_pipeline.py   # 主入口脚本
 ├── src/
-│   ├── config.py              # Config reader (SSOT)
-│   ├── data_agent.py          # AkShare data collection
-│   ├── email_agent.py         # Email delivery
-│   ├── registry.py            # Provider/Template/Profile registry
-│   └── research_agent.py      # AI research agent
-├── references/                 # Backup reference implementations
-├── Dockerfile                  # Docker deployment
+│   ├── config.py              # 配置读取层（SSOT）
+│   ├── data_agent.py          # AkShare 数据采集
+│   ├── email_agent.py         # 邮件发送
+│   ├── registry.py            # Provider/Template/Profile 注册表
+│   └── research_agent.py      # AI 研究 Agent
+├── references/                 # 备份参考实现
+├── Dockerfile                  # Docker 部署
 ├── requirements.txt
-└── .env.example               # Environment variable template
+└── .env.example               # 环境变量模板
 ```
 
 ---
 
-## Customization
+## 自定义扩展
 
-### Add a New AI Provider
+### 添加新的 AI Provider
 
-Register in `src/registry.py`:
+在 `src/registry.py` 中注册：
 
 ```python
 class MyProvider:
@@ -172,46 +172,46 @@ class MyProvider:
 ProviderRegistry.register("myprovider", MyProvider)
 ```
 
-### Add a New Report Template
+### 添加新的报告模板
 
-Add template function in `src/registry.py`:
+在 `src/registry.py` 中添加模板函数：
 
 ```python
 def my_template(data_context: str, tc: TimeContext) -> str:
-    return "【Report Structure】..."
+    return "【报告结构】..."
 
 TemplateRegistry.register("my_template", my_template)
 ```
 
-### Add a New User Profile
+### 添加新的用户画像
 
 ```python
 class MyProfile:
     @classmethod
     def filter(cls, report_md: str) -> str:
-        return report_md  # custom filtering logic
+        return report_md  # 自定义过滤逻辑
 
 ProfileRegistry.register("myprofile", MyProfile)
 ```
 
 ---
 
-## Dependencies
+## 依赖说明
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| dashscope | ≥1.14 | Alibaba Cloud API |
-| akshare | ≥1.13 | A-share / macro data |
+| 依赖 | 版本 | 用途 |
+|------|------|------|
+| dashscope | ≥1.14 | 阿里云百炼 API |
+| akshare | ≥1.13 | A股/宏观数据采集 |
 | markdown2 | ≥2.0 | Markdown → HTML |
-| pyyaml | ≥6.0 | Config file parsing |
-| yagmail | ≥0.15 | Email sending (optional) |
-| pdfkit | ≥1.0 | PDF generation (optional) |
+| pyyaml | ≥6.0 | 配置文件解析 |
+| yagmail | ≥0.15 | 邮件发送（可选） |
+| pdfkit | ≥1.0 | PDF 生成（可选，需 wkhtmltopdf）|
 
 ---
 
-## Disclaimer
+## 免责声明
 
-This project is for learning and research purposes only. AI-generated reports are for reference only and do not constitute any investment advice. Investments involve risks; decisions should be made cautiously.
+本项目仅供学习和研究使用。AI 生成的报告仅供参考，不构成任何投资建议。投资有风险，决策需谨慎。
 
 ---
 
