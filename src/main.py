@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""
-向后兼容重导出
-推荐直接使用: python run_full_pipeline.py
-"""
-import os, sys, subprocess
+"""Compatibility entry point; implementation lives in src.pipeline."""
+import sys
+from pathlib import Path
 
-# 向上找到项目根目录
-root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-pipeline = os.path.join(root, "run_full_pipeline.py")
-sys.exit(subprocess.call([sys.executable, pipeline], cwd=root))
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from src.pipeline import main
+
+if __name__ == "__main__":
+    sys.exit(main())

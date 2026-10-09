@@ -12,7 +12,7 @@ import yaml
 
 # ── 路径常量 ──────────────────────────────────────────────
 HERMES_HOME = Path(os.environ.get("HERMES_HOME", Path.home() / ".hermes"))
-CONFIG_FILE = HERMES_HOME / "fund-report.yaml"
+CONFIG_FILE = Path(os.environ.get("FUND_REPORT_CONFIG", HERMES_HOME / "fund-report.yaml"))
 
 _config_cache: Optional[Dict[str, Any]] = None
 
@@ -28,6 +28,9 @@ def _load_config() -> Dict[str, Any]:
             )
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
             _config_cache = yaml.safe_load(f)
+            if not isinstance(_config_cache, dict):
+                _config_cache = None
+                raise ValueError("配置文件必须是 YAML mapping")
     return _config_cache
 
 
@@ -148,3 +151,7 @@ def get_all_profiles() -> List[str]:
 def get_enabled_jobs() -> List[Dict[str, Any]]:
     jobs = _load_config().get("jobs", [])
     return [j for j in jobs if j.get("enabled", False)]
+
+
+def get_default_template() -> str:
+    return _load_config().get("defaults", {}).get("template", "weekend_recap")
