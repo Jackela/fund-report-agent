@@ -38,12 +38,11 @@ jobs:
 
       - name: Import check
         run: |
-          .venv/bin/python -c "
-            import sys; sys.path.insert(0, '.')
-            from src import registry, config
-            print('registry OK')
-            print('config OK')
-          "
+          .venv/bin/python - <<'PYTHON'
+          from src import registry, config
+          print('registry OK')
+          print('config OK')
+          PYTHON
 
       - name: Offline entry and configuration contracts
         run: .venv/bin/python -m unittest discover -s tests -v
