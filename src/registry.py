@@ -140,12 +140,9 @@ class AliyunProvider:
 
     def _ensure_client(self):
         if self._client is None:
-            import subprocess, os
-            result = subprocess.run(
-                ["pass", "show", "hermes/aliyun-api-key"],
-                capture_output=True, text=True, check=True
-            )
-            api_key = result.stdout.strip().split("\n")[0]
+            import os
+            from src.config import get_api_key
+            api_key = os.environ.get("DASHSCOPE_API_KEY") or get_api_key("aliyun")
             os.environ["DASHSCOPE_API_KEY"] = api_key
             import dashscope
             from dashscope import Generation

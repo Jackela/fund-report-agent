@@ -11,7 +11,7 @@ from email.mime.application import MIMEApplication
 from email.header import Header
 from datetime import datetime
 
-from config import get_smtp_config, get_recipients, get_default_profile
+from src.config import get_smtp_config, get_recipients, get_default_profile
 
 
 class EmailAgent:

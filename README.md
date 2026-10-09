@@ -1,6 +1,6 @@
 # 📊 基金投资周报生成器
 
-> AI 驱动的自动化基金投资分析报告系统 — 数据采集 → 深度研究 → 邮件发送，开箱即用。
+> AI 驱动的自动化基金投资分析报告系统 — 数据采集 → 深度研究 → 邮件发送。本项目由 AI 辅助维护；配置、离线检查与实际执行分开。
 
 [![GitHub Stars](https://img.shields.io/github/stars/Jackela/fund-report-agent)](https://github.com/Jackela/fund-report-agent/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -73,12 +73,9 @@ username: your-email@qq.com
 from_name: 基金报告机器人
 ```
 
-**方式二：环境变量**
-
-```bash
-cp .env.example .env
-# 编辑 .env，填入真实值
-```
+配置文件默认读取 `~/.hermes/fund-report.yaml`。`HERMES_HOME` 可指定目录，
+`FUND_REPORT_CONFIG` 可指定单个 YAML 文件；当前入口不自动加载 `.env`。
+API Key 和 SMTP 凭据由配置中的 pass 引用读取，运行机器需要安装 pass。
 
 ### 3. 运行一次报告
 
@@ -99,8 +96,7 @@ PROFILE=k7407 TEMPLATE=weekend_recap python3 run_and_send_pipeline.py
 ```bash
 # 每周六早上8点运行
 0 8 * * 6 cd /path/to/fund-report-agent && \
-  .venv/bin/python3 run_and_send_pipeline.py \
-  PROFILE=dad TEMPLATE=weekend_recap >> /var/log/fund-report.log 2>&1
+  PROFILE=dad TEMPLATE=weekend_recap .venv/bin/python3 run_and_send_pipeline.py >> /var/log/fund-report.log 2>&1
 ```
 
 #### 方式 B：Hermes Agent Cron（如果你用 Hermes）
@@ -109,7 +105,7 @@ PROFILE=k7407 TEMPLATE=weekend_recap python3 run_and_send_pipeline.py
 hermes cron create \
   --name "每周六基金报告" \
   --schedule "0 8 * * 6" \
-  --prompt "cd /path/to/fund-report-agent && .venv/bin/python3 run_and_send_pipeline.py PROFILE=dad TEMPLATE=weekend_recap"
+  --prompt "cd /path/to/fund-report-agent && PROFILE=dad TEMPLATE=weekend_recap .venv/bin/python3 run_and_send_pipeline.py"
 ```
 
 ---
@@ -119,6 +115,13 @@ hermes cron create \
 所有配置集中在 `~/.hermes/fund-report.yaml`：
 
 ```yaml
+provider:
+  active: aliyun
+  aliyun:
+    api_key_pass_key: hermes/aliyun-api-key
+defaults:
+  profile: dad
+  template: weekend_recap
 profiles:
   dad:
     email: "your-dad@email.com"
@@ -143,20 +146,33 @@ jobs:
 
 ```
 .
-├── run_and_send_pipeline.py   # 主入口脚本
+├── run_and_send_pipeline.py   # 兼容入口，委托 src.pipeline
 ├── src/
+│   ├── pipeline.py            # 唯一执行链与 --check-config
 │   ├── config.py              # 配置读取层（SSOT）
 │   ├── data_agent.py          # AkShare 数据采集
 │   ├── email_agent.py         # 邮件发送
 │   ├── registry.py            # Provider/Template/Profile 注册表
 │   └── research_agent.py      # AI 研究 Agent
-├── references/                 # 备份参考实现
+├── references/               # 旧路径兼容包装，委托 src
 ├── Dockerfile                  # Docker 部署
 ├── requirements.txt
 └── .env.example               # 环境变量模板
 ```
 
 ---
+
+## 开发与离线验证
+
+先执行 `python -m unittest discover -s tests -v`。测试使用临时 YAML 和替身，
+不会采集外部数据、调用模型、读取 pass 或连接 SMTP。
+
+`python run_and_send_pipeline.py --check-config` 只检查 YAML、注册名称和选择，
+输出 provider/template/profile，不验证凭据或外部服务。选择顺序是
+环境变量 `PROVIDER`、`TEMPLATE`、`PROFILE` 优先，其次 YAML 默认值。
+根入口、`src/main.py` 和 `references` 入口均调用 `src.pipeline.main`；
+只在 `src/` 修改实现。普通执行会采集、调用模型并发信，需在授权的宿主环境验证。
+CI 在 master 分支及其 PR 上运行离线契约检查；通过不代表实际基金数据或报告结论正确。
 
 ## 自定义扩展
 

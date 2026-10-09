@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
   test:
@@ -33,6 +33,7 @@ jobs:
             src/data_agent.py \
             src/email_agent.py \
             src/research_agent.py \
+            src/pipeline.py \
             run_and_send_pipeline.py
 
       - name: Import check
@@ -43,3 +44,6 @@ jobs:
             print('registry OK')
             print('config OK')
           "
+
+      - name: Offline entry and configuration contracts
+        run: .venv/bin/python -m unittest discover -s tests -v
